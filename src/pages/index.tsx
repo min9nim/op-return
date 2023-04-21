@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import {Inter} from 'next/font/google'
+import queryString from 'query-string';
 
 const inter = Inter({subsets: ['latin']})
 
@@ -112,9 +113,9 @@ export default function Home({tx, data}) {
 }
 
 // This gets called on every request
-export async function getServerSideProps() {
-  // const tx = (new URL(document.location)).searchParams.get('tx')
-  const tx = '862ad0316f9cb974f285db9403384a3cc64f3e1f01dd8e5f945b578548a8b59d'
+export async function getServerSideProps(req, res, resolvedUrl) {
+  const tx =  req.query.tx
+
   if (!tx) {
     throw Error('tx is undefined')
   }
