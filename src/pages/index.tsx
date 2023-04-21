@@ -1,6 +1,4 @@
-import Image from 'next/image'
 import {Inter} from 'next/font/google'
-import queryString from 'query-string';
 
 const inter = Inter({subsets: ['latin']})
 
