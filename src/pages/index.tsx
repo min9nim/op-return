@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+export default function Home({data}) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
@@ -24,7 +24,7 @@ export default function Home() {
       </div>
 
       <div style={{fontSize: 50}} className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        Engrave your message on eternity of Bitcoin.
+        {data ?? 'Engrave your message on eternity of Bitcoin.'}
       </div>
 
       <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
@@ -106,4 +106,38 @@ export default function Home() {
       </div>
     </main>
   )
+}
+
+// This gets called on every request
+export async function getServerSideProps() {
+  // const tx = (new URL(document.location)).searchParams.get('tx')
+  const  tx = '862ad0316f9cb974f285db9403384a3cc64f3e1f01dd8e5f945b578548a8b59d'
+  if(!tx){
+    throw Error('tx is undefined')
+  }
+
+  const data = await fetch(
+    'https://mempool.space/api/tx/' + tx,
+  )
+    .then(response => response.json())
+    .then(
+      res =>
+        res.vout.find(item => item.scriptpubkey_type === 'op_return')
+          .scriptpubkey,
+    )
+    // .then(console.log)
+    .then(spk => spk
+      .substr(4)
+      .split('')
+      .reduce(
+        (acc, val, idx, arr) =>
+          acc +
+          String.fromCharCode(
+            parseInt(arr.slice(idx * 2, idx * 2 + 2).join(''), 16),
+          ),
+        '',
+      ))
+
+  // Pass data to the page via props
+  return { props: { data } }
 }
